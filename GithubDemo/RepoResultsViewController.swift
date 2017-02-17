@@ -71,8 +71,8 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
         let imageURL = NSURL(string: repo.ownerAvatarURL!)
         cell.ownerImage.setImageWith(imageURL as! URL)
         cell.descriptionLabel.text = repo.description
-        cell.starLabel.text = repo.stars as? String
-        cell.forkLabel.text = repo.forks as? String
+        cell.starLabel.text = "\(repo.stars)"
+        cell.forkLabel.text = "\(repo.forks)"
         cell.starImage.image = UIImage(named: "star")
         cell.forkImage.image = UIImage(named: "fork")
         
