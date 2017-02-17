@@ -70,9 +70,9 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
         cell.ownerLabel.text = repo.ownerHandle
         let imageURL = NSURL(string: repo.ownerAvatarURL!)
         cell.ownerImage.setImageWith(imageURL as! URL)
-        cell.descriptionLabel.text = repo.description
-        cell.starLabel.text = "\(repo.stars)"
-        cell.forkLabel.text = "\(repo.forks)"
+        cell.descriptionLabel.text = repo.repoDescription
+        cell.starLabel.text = "\(repo.stars!)"
+        cell.forkLabel.text = "\(repo.forks!)"
         cell.starImage.image = UIImage(named: "star")
         cell.forkImage.image = UIImage(named: "fork")
         
@@ -100,7 +100,7 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
 
             MBProgressHUD.hide(for: self.view, animated: true)
             }, error: { (error) -> Void in
-                print(error)
+                print(error ?? 0)
         })
     }
 }
