@@ -10,8 +10,11 @@ import UIKit
 import MBProgressHUD
 
 // Main ViewController
-class RepoResultsViewController: UIViewController {
 
+class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+    
+    @IBOutlet weak var repoResultsTableView: UITableView!
+    
     var searchBar: UISearchBar!
     var searchSettings = GithubRepoSearchSettings()
 
@@ -19,6 +22,7 @@ class RepoResultsViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        
 
         // Initialize the UISearchBar
         searchBar = UISearchBar()
@@ -30,7 +34,43 @@ class RepoResultsViewController: UIViewController {
 
         // Perform the first search when the view controller first loads
         doSearch()
+        
+        // Initialize the UITableView
+        repoResultsTableView.dataSource = repos as! UITableViewDataSource?
+        repoResultsTableView.delegate = self
+        repoResultsTableView.estimatedRowHeight = 100
+        repoResultsTableView.rowHeight = UITableViewAutomaticDimension
+        
+        self.repoResultsTableView.reloadData()
     }
+    
+    public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if let repos = repos {
+            return repos.count
+        }
+        else {
+            return 0
+        }
+    }
+    
+    public func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: "GithubRepoCell", for: indexPath) as! GithubRepoCell
+        
+        let repo = repos![indexPath.row]
+        
+        
+        cell.nameLabel.text = repo.name
+        cell.ownerLabel.text = repo.ownerHandle
+        let imageURL = NSURL(string: repo.ownerAvatarURL!)
+        cell.ownerImage.setImageWith(imageURL as! URL)
+        
+        
+        //cell.textLabel!.text = title as! String
+        
+        return cell
+    }
+    
+    
 
     // Perform the search.
     fileprivate func doSearch() {
@@ -43,7 +83,8 @@ class RepoResultsViewController: UIViewController {
             // Print the returned repositories to the output window
             for repo in newRepos {
                 print(repo)
-            }   
+            }
+            var repos = [GithubRepo]()
 
             MBProgressHUD.hide(for: self.view, animated: true)
             }, error: { (error) -> Void in
