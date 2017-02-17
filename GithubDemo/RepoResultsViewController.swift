@@ -23,25 +23,32 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
     override func viewDidLoad() {
         super.viewDidLoad()
         
-
+        repoResultsTableView.estimatedRowHeight = 300
+        repoResultsTableView.rowHeight = UITableViewAutomaticDimension
+        
+       
         // Initialize the UISearchBar
         searchBar = UISearchBar()
         searchBar.delegate = self
-
+        
         // Add SearchBar to the NavigationBar
         searchBar.sizeToFit()
         navigationItem.titleView = searchBar
 
+        
+
+        // Initialize the UITableView
+        repoResultsTableView.dataSource = self
+        //repoResultsTableView.dataSource = repos as! UITableViewDataSource?
+        repoResultsTableView.delegate = self
+        
+        
         // Perform the first search when the view controller first loads
         doSearch()
         
-        // Initialize the UITableView
-        repoResultsTableView.dataSource = repos as! UITableViewDataSource?
-        repoResultsTableView.delegate = self
-        repoResultsTableView.estimatedRowHeight = 100
-        repoResultsTableView.rowHeight = UITableViewAutomaticDimension
         
-        self.repoResultsTableView.reloadData()
+        
+        
     }
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -71,11 +78,6 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
         
         
         
-        
-        
-        
-        //cell.textLabel!.text = title as! String
-        
         return cell
     }
     
@@ -93,7 +95,8 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
             for repo in newRepos {
                 print(repo)
             }
-            var repos = [GithubRepo]()
+            self.repos = newRepos
+            self.repoResultsTableView.reloadData()
 
             MBProgressHUD.hide(for: self.view, animated: true)
             }, error: { (error) -> Void in
