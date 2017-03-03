@@ -11,13 +11,14 @@ import MBProgressHUD
 
 // Main ViewController
 
-class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, SettingsPresentingViewControllerDelegate {
     
     @IBOutlet weak var repoResultsTableView: UITableView!
     
     var searchBar: UISearchBar!
     var searchSettings = GithubRepoSearchSettings()
-
+    var minStars = 0
+    
     var repos: [GithubRepo]!
 
     override func viewDidLoad() {
@@ -26,7 +27,6 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
         repoResultsTableView.estimatedRowHeight = 300
         repoResultsTableView.rowHeight = UITableViewAutomaticDimension
         
-       
         // Initialize the UISearchBar
         searchBar = UISearchBar()
         searchBar.delegate = self
@@ -35,20 +35,13 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
         searchBar.sizeToFit()
         navigationItem.titleView = searchBar
 
-        
-
         // Initialize the UITableView
         repoResultsTableView.dataSource = self
         //repoResultsTableView.dataSource = repos as! UITableViewDataSource?
         repoResultsTableView.delegate = self
         
-        
         // Perform the first search when the view controller first loads
         doSearch()
-        
-        
-        
-        
     }
     
     public func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -65,7 +58,6 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
         
         let repo = repos![indexPath.row]
         
-        
         cell.nameLabel.text = repo.name
         cell.ownerLabel.text = repo.ownerHandle
         let imageURL = NSURL(string: repo.ownerAvatarURL!)
@@ -76,25 +68,20 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
         cell.starImage.image = UIImage(named: "star")
         cell.forkImage.image = UIImage(named: "fork")
         
-        
-        
         return cell
     }
     
-    
-
     // Perform the search.
     fileprivate func doSearch() {
-
         MBProgressHUD.showAdded(to: self.view, animated: true)
 
         // Perform request to GitHub API to get the list of repositories
         GithubRepo.fetchRepos(searchSettings, successCallback: { (newRepos) -> Void in
 
             // Print the returned repositories to the output window
-            for repo in newRepos {
-                print(repo)
-            }
+            //for repo in newRepos {
+            //    print(repo)
+            //}
             self.repos = newRepos
             self.repoResultsTableView.reloadData()
 
@@ -103,11 +90,30 @@ class RepoResultsViewController: UIViewController, UITableViewDelegate, UITableV
                 print(error ?? 0)
         })
     }
+    
+    func didSaveSettings(settings: GithubRepoSearchSettings) {
+        //self.minStars = settings.minStars
+        self.searchSettings = settings
+        print("minStars: \(searchSettings.minStars)")
+        doSearch()
+    }
+    
+    func didCancelSettings() {
+        self.searchSettings.minStars = minStars
+    }
+        
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        let navController = segue.destination as! UINavigationController
+        let vc = navController.topViewController as! SearchSettingsViewController
+        vc.settings = searchSettings
+        //vc.starSlider.value = Float(minStars)
+        vc.delegate = self
+    }
+    
 }
 
 // SearchBar methods
 extension RepoResultsViewController: UISearchBarDelegate {
-
     func searchBarShouldBeginEditing(_ searchBar: UISearchBar) -> Bool {
         searchBar.setShowsCancelButton(true, animated: true)
         return true
